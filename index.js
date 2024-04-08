@@ -8,6 +8,7 @@ const connectDB = require("./dbinit");
 
 const userRoutes = require("./routes/user");
 const transactionRoutes = require("./routes/transaction");
+const upload = require("./routes/upload");
 
 connectDB();
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({extended: true}))
 
 app.use("/user", userRoutes);
 app.use("/transaction", transactionRoutes);
+app.use("/api", upload);
 
 app.get("/", (req, res) => {
     res.send("Welcome to PiggyBank API");
