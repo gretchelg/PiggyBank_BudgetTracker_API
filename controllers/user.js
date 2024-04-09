@@ -93,7 +93,7 @@ const budget = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await User.findById(id);
-        console.log(user.budgets);
+
     if (!user) {
         return res.status(404).json({ success: false, msg: "user is not found" });
     }

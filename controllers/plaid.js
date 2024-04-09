@@ -5,7 +5,7 @@ const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
 const PLAID_SECRET = process.env.PLAID_SECRET;
 const PLAID_ENV = process.env.PLAID_ENV || "sandbox";
 // const PLAID_REDIRECT_URI = process.env.PLAID_REDIRECT_URI || "";
-const RECORDING_MODE = process.env.RECORDING_MODE || false
+const TEST_MODE = process.env.TEST_MODE || false
 
 let ACCESS_TOKEN = null;
 let PUBLIC_TOKEN = null;
@@ -30,9 +30,9 @@ const client = new PlaidApi(configuration);
 //===============================================================================================
 
 const createLinkToken = async function (req, res) {
-console.log("INFO: inside createLinkToken()")
+
 const { _id } = req.params;
-// console.log("req.user:", req.user)
+
 const configs = {
 user: {
     // This should correspond to a unique id for the current user.
@@ -58,7 +58,7 @@ try {
 
 const setAccessToken = async function (req, res, next) {
 PUBLIC_TOKEN = req.body.public_token;
-console.log("PUBLIC_TOKEN", PUBLIC_TOKEN);
+
 try {
 const tokenResponse = await client.itemPublicTokenExchange({
     public_token: PUBLIC_TOKEN,
@@ -66,8 +66,6 @@ const tokenResponse = await client.itemPublicTokenExchange({
 
 ACCESS_TOKEN = tokenResponse.data.access_token;
 ITEM_ID = tokenResponse.data.item_id;
-console.log(">>>>ITEM_ID", ITEM_ID);
-console.log(">>>>ACCESS_TOKEN", ACCESS_TOKEN);
 
 res.status(200).json({
     item_id: ITEM_ID,
@@ -83,7 +81,6 @@ res.status(400).json({ error: error.message });
 //==============================================================================================
 
 const syncTransactions = async function (req, res, next) {
-// console.log(">>>>ACCESS TOKEN:", ACCESS_TOKEN)
 const { id } = req.params;
 try {
     // Set cursor to empty to receive all historical updates
@@ -107,9 +104,7 @@ let cursor = null;
     // const data = response.data;
 
     let data
-    console.log("recording mode?", {RECORDING_MODE})
-    if (RECORDING_MODE === 'true') {
-        console.log("recording is starting", id)
+    if (TEST_MODE === 'true') {
         data = getStaticPlaidTransactions()
     } else {
         data = await fetchTransactionsFromPlaid(request)
@@ -131,8 +126,6 @@ let cursor = null;
     const recently_added = [...added]
     .sort(compareTxnsByDateAscending)
     .slice(-8);
-    // console.log("ALL added:", added )
-    console.log(">>>>recent 8 trans only <<<<<");  
 
     recently_added.map(async addedTransaction => {
     // added.map(async addedTransaction => {
@@ -140,7 +133,7 @@ let cursor = null;
     newTransaction.category_name = mapCategoryFromBank(addedTransaction.category)
     await updateOrInsertTxn(newTransaction)  
     })
-    console.log(">>>>ACCESS_TOKEN", ACCESS_TOKEN);
+
     // res.status(200).json({ all_transactions: added });
     res.status(200).json({ latest_transactions: recently_added });
 } catch (error) {
@@ -202,7 +195,7 @@ try {
     console.log('Transaction_ID not found');
     return null;
     }
-    console.log('Found transaction_ID:', foundTransaction);
+    console.log('Found transaction_ID:');
 } catch (error) {
     console.error('Error finding transaction_ID:', error);
 }
@@ -220,7 +213,7 @@ try {
     console.log('Transaction not found');
     return;
     }
-    console.log('Transaction updated:', updatedTransaction);
+    console.log('Transaction updated:');
 } catch (error) {
     console.error('Error updating transaction:', error);
 }
@@ -229,7 +222,7 @@ try {
 async function insertTransaction(newTransaction){
 try {
     const newTran = await Transaction.create(newTransaction);
-    console.log("OK: inserted a new txn!", newTran)
+    console.log("OK: inserted a new txn!")
 } catch (error) {
     console.error('Error adding transaction:', error);
 }  
@@ -240,7 +233,7 @@ function mapCategoryFromBank(category){
 if (category.length == 0) {
     return "others"
 }
-console.log("plaid category:", category)
+
 // TODO lowercase the category
 const lowercasedCategory = category[0]
 
@@ -334,7 +327,7 @@ data = {
     hasMore: false,
     next_cursor: null
 }
-console.log("EXITING getStaticPlaidTransactions", data)
+
 return data
 }
 
