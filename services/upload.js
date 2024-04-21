@@ -18,4 +18,19 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage : storage });
 
-module.exports = upload;
+const getUrl = (req, res) => {
+
+    if(req.file && req.file.path) {
+        res.status(200).json(
+            {
+                msg: "Image save successfully", 
+                url: req.file.path
+            })
+    }
+    res.status(422).json({ error })
+}
+
+module.exports =  { 
+    upload,
+    getUrl
+};
