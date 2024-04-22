@@ -238,7 +238,7 @@ async function fetchTransactionsFromPlaid(request) {
         case "Payment":
             return "bills" 
         default:
-            return category[0]
+            return "others"
         }
     }
     // reformat the plaid transaction to our own transaction schema
