@@ -29,7 +29,7 @@ const newTransaction = async (req, res) => {
         res.status(201).json({success: true, data: newTransaction });
 
     } catch (error) {
-        res.status(400).json({msg : error });
+        res.status(500).json({msg : error });
     }
 };
 
@@ -38,14 +38,14 @@ const deleteTransaction = async (req, res) => {
     try {
         const { id } = req.params;
         const deletedTransaction = await Transaction.findByIdAndDelete(id);
-
+        
         if (!deletedTransaction) {
             return res.status(400).json({ error: "Transaction not found" });
         }
 
-        restart.status(200).json( { success: true, data: deletedTransaction });
+        res.status(200).json( { success: true, data: deletedTransaction });
     } catch (error) {
-        res.status(400).json({ error });
+        res.status(500).json({ error });
     }
 };
 
@@ -65,7 +65,7 @@ const deleteAllTransactions = async (req, res) => {
             msg: "Successfully deleted all transactions",
         });
     } catch (error) {
-        res.status(400).json({error});
+        res.status(500).json({error});
     }
 };
 
@@ -137,7 +137,7 @@ const getAllTransactions = async (req, res) => {
             res.status(200).json(transactions)
         } 
     } catch (error) {
-        res.status(400).json({ msg: error });
+        res.status(500).json({ msg: error });
     }
 };
 
@@ -168,7 +168,7 @@ const updateTransaction = async (req, res) => {
         
         res.status(200).json({success: true, data: updatedTransaction });
     } catch (error) {
-        res.status(400).json({ msg: error });
+        res.status(500).json({ msg: error });
     }
 };
 
